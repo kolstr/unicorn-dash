@@ -664,7 +664,7 @@
         <button class="diff-btn" type="button" data-difficulty="medium" aria-pressed="true">Medium</button>
         <button class="diff-btn" type="button" data-difficulty="hard" aria-pressed="false">Hard</button>
       </div>
-      <p class="diff-note">3 hearts · the dream as intended</p>
+      <p class="diff-note" id="diffNote">3 hearts · the dream as intended</p>
       <button id="playBtn" class="btn">Start Running</button>
       <div class="controls">
         <div><kbd>Space</kbd> / <kbd>↑</kbd> jump — press again mid-air to double jump</div>
@@ -685,12 +685,6 @@
         <div class="stat-block"><span class="stat-big" id="finalBest">0</span><span class="stat-cap">BEST</span></div>
         <div class="stat-block"><span class="stat-big" id="finalStars">0</span><span class="stat-cap">STARS</span></div>
       </div>
-      <div class="difficulty" role="group" aria-label="Difficulty for the next run">
-        <button class="diff-btn" type="button" data-difficulty="easy" aria-pressed="false">Easy</button>
-        <button class="diff-btn" type="button" data-difficulty="medium" aria-pressed="true">Medium</button>
-        <button class="diff-btn" type="button" data-difficulty="hard" aria-pressed="false">Hard</button>
-      </div>
-      <p class="diff-note">3 hearts · the dream as intended</p>
       <button id="againBtn" class="btn">Run Again</button>
       <div class="hint">or press <kbd>Space</kbd></div>
     </div>
@@ -753,8 +747,7 @@
     menu: $('screen-menu'), over: $('screen-over'), paused: $('screen-paused'),
     finalScore: $('finalScore'), finalBest: $('finalBest'), finalStars: $('finalStars'),
     loading: $('loading'), muteBtn: $('muteBtn'), pauseBtn: $('pauseBtn'),
-    diffButtons: Array.from(document.querySelectorAll('.diff-btn')),
-    diffNotes: Array.from(document.querySelectorAll('.diff-note')),
+    diffButtons: Array.from(document.querySelectorAll('.diff-btn')), diffNote: $('diffNote'),
   };
 
   /* =========================================================
@@ -2104,7 +2097,7 @@
     dom.diffButtons.forEach((btn) => {
       btn.setAttribute('aria-pressed', String(btn.dataset.difficulty === difficulty));
     });
-    dom.diffNotes.forEach((note) => { note.textContent = diff().note; });
+    if (dom.diffNote) dom.diffNote.textContent = diff().note;
     if (announce) {
       sound.ensure();
       sound.coin(1.15);
