@@ -1,0 +1,30 @@
+{
+  "id": "./",
+  "name": "Unicorn Dash",
+  "short_name": "Unicorn Dash",
+  "description": "A dreamy pastel endless runner. Gallop across a candy-colored sky, leap over crystal spires, duck beneath gloom wisps, and chase stars until the rainbow takes over.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1a1030",
+  "theme_color": "#ffd6ea",
+  "categories": ["games", "entertainment"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -31,6 +31,34 @@ Tested in current Chrome / Edge / Firefox / Safari. Requires WebGL 2.
 
 ---
 
+## 📲 Install it as an app
+
+The game is a progressive web app: it has a web app manifest (`docs/manifest.webmanifest`),
+SVG app icons (regular + maskable), and the required meta tags, so it can be installed and
+launched in a standalone window. There is deliberately **no service worker and no offline
+cache** — it always loads fresh from the network.
+
+Installing needs a secure origin, so serve the game over **HTTPS** or **localhost**
+(`file://` will not offer an install):
+
+```bash
+cd docs
+python3 -m http.server 8000   # then open http://localhost:8000
+```
+
+- **Chrome / Edge (desktop):** install button in the address bar, or ⋮ → “Install Unicorn Dash…”
+- **Android:** ⋮ → “Install app” / “Add to Home screen”
+- **iOS / iPadOS Safari:** Share → “Add to Home Screen”
+
+When the browser offers an install flow, the game shows a 📲 button next to the pause button.
+
+> The icons are SVG, which current Chrome/Edge accept for installability. If you want to cover
+> older browsers (and get a crisp iOS home-screen icon), drop `icon-192.png`, `icon-512.png`,
+> `icon-512-maskable.png` and `apple-touch-icon.png` (180×180) into `docs/icons/`, add the PNG
+> entries to the manifest's `icons` array, and link the Apple icon from the `<head>`.
+
+---
+
 ## 🎮 Controls
 
 | Action | Keyboard | Touch |

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Unicorn Dash">
+  <title>Unicorn Dash</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe3f2"/>
+      <stop offset="0.45" stop-color="#d7b8ff"/>
+      <stop offset="1" stop-color="#8fe9ff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="horn" x1="0.1" y1="1" x2="0.9" y2="0">
+      <stop offset="0" stop-color="#ffb257"/>
+      <stop offset="0.5" stop-color="#ffd166"/>
+      <stop offset="1" stop-color="#fff4ba"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="146" cy="128" r="122" fill="url(#glow)"/>
+  <circle cx="392" cy="404" r="140" fill="url(#glow)" opacity="0.55"/>
+
+  <!-- shy sparkles -->
+  <g fill="#ffffff" opacity="0.85">
+    <circle cx="164" cy="116" r="7"/>
+    <circle cx="446" cy="248" r="6"/>
+    <circle cx="106" cy="304" r="5"/>
+    <circle cx="404" cy="120" r="4.5"/>
+  </g>
+
+  <!-- mane -->
+  <g>
+    <ellipse cx="206" cy="234" rx="54" ry="46" transform="rotate(-30 206 234)" fill="#ff8ac5"/>
+    <ellipse cx="210" cy="292" rx="50" ry="54" transform="rotate(-12 210 292)" fill="#b48bff"/>
+    <ellipse cx="238" cy="348" rx="48" ry="42" transform="rotate(4 238 348)" fill="#7fe6ff"/>
+    <ellipse cx="280" cy="366" rx="34" ry="24" transform="rotate(20 280 366)" fill="#ff9ed2"/>
+  </g>
+
+  <!-- ear -->
+  <path d="M262 214 L268 140 L310 196 Z" fill="#fffafd" stroke="#fffafd" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M274 200 L278 160 L300 192 Z" fill="#ffb3d9"/>
+
+  <!-- horn -->
+  <path d="M318 208 L392 84 L354 224 Z" fill="url(#horn)" stroke="url(#horn)" stroke-width="12" stroke-linejoin="round"/>
+  <g stroke="#ffb257" stroke-width="5" stroke-linecap="round" opacity="0.75">
+    <path d="M335 177 L365 189"/>
+    <path d="M355 146 L373 154"/>
+    <path d="M372 114 L384 120"/>
+  </g>
+
+  <!-- head -->
+  <g fill="#fffafd">
+    <ellipse cx="296" cy="268" rx="94" ry="82" transform="rotate(-8 296 268)"/>
+    <ellipse cx="372" cy="316" rx="54" ry="44" transform="rotate(6 372 316)"/>
+    <ellipse cx="344" cy="350" rx="44" ry="28" transform="rotate(-6 344 350)"/>
+  </g>
+
+  <!-- forelock -->
+  <path d="M338 196 C300 190 274 208 264 240 C284 220 308 212 336 216 C350 212 350 200 338 196 Z" fill="#ff8ac5"/>
+
+  <!-- face -->
+  <ellipse cx="334" cy="262" rx="14" ry="17" fill="#3a2452"/>
+  <circle cx="339" cy="256" r="5" fill="#ffffff"/>
+  <circle cx="329" cy="270" r="2.5" fill="#ffffff" opacity="0.85"/>
+  <ellipse cx="344" cy="306" rx="27" ry="16" fill="#ff9ecb" opacity="0.45"/>
+  <ellipse cx="392" cy="316" rx="9" ry="11" fill="#3a2452" opacity="0.32"/>
+  <path d="M366 340 q 14 9 26 2" fill="none" stroke="#e9c9e8" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- sparkles -->
+  <g fill="#ffffff">
+    <path d="M0 -22 L5.5 -5.5 L22 0 L5.5 5.5 L0 22 L-5.5 5.5 L-22 0 L-5.5 -5.5 Z" transform="translate(122 170) scale(1.05)" opacity="0.95"/>
+    <path d="M0 -22 L5.5 -5.5 L22 0 L5.5 5.5 L0 22 L-5.5 5.5 L-22 0 L-5.5 -5.5 Z" transform="translate(414 154) scale(0.72)" opacity="0.9"/>
+    <path d="M0 -22 L5.5 -5.5 L22 0 L5.5 5.5 L0 22 L-5.5 5.5 L-22 0 L-5.5 -5.5 Z" transform="translate(144 398) scale(0.8)" fill="#ffe9ff" opacity="0.9"/>
+    <path d="M0 -22 L5.5 -5.5 L22 0 L5.5 5.5 L0 22 L-5.5 5.5 L-22 0 L-5.5 -5.5 Z" transform="translate(420 396) scale(0.64)" fill="#fff3b0"/>
+  </g>
+</svg>
