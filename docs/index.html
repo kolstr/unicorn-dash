@@ -451,6 +451,49 @@
   .btn:active { transform: translateY(1px) scale(0.985); }
   .btn:focus-visible { outline: 3px solid #7fe6ff; outline-offset: 4px; }
 
+  .difficulty {
+    position: relative;
+    display: flex;
+    gap: 6px;
+    width: min(100%, 340px);
+    margin: 0 auto;
+    padding: 6px;
+    border-radius: 999px;
+    background: rgba(122, 84, 170, 0.1);
+    box-shadow: inset 0 2px 6px rgba(80, 30, 120, 0.12);
+  }
+  .diff-btn {
+    flex: 1;
+    font-family: 'Baloo 2', system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    color: #7a5d9e;
+    padding: 8px 8px 10px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease;
+  }
+  .diff-btn:hover { color: #5a2f7e; }
+  .diff-btn:active { transform: scale(0.96); }
+  .diff-btn:focus-visible { outline: 2px solid #7fe6ff; outline-offset: 2px; }
+  .diff-btn[aria-pressed="true"] {
+    color: #fff;
+    background: linear-gradient(135deg, #ff74b9, #b06bff 55%, #6fd8ff);
+    box-shadow: 0 6px 16px rgba(255, 90, 180, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    text-shadow: 0 1px 4px rgba(90, 30, 130, 0.4);
+  }
+  .diff-note {
+    position: relative;
+    margin: 10px 0 20px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #a68bc4;
+    min-height: 1em;
+  }
+
   .controls {
     position: relative;
     margin-top: 24px;
@@ -545,6 +588,8 @@
     #screen-menu .tagline { margin-left: 0; margin-right: 0; }
     #screen-menu .controls { justify-items: start; text-align: left; }
     #screen-menu .title { font-size: clamp(50px, 5.4vw, 78px); }
+    #screen-menu .difficulty { margin-left: 0; }
+    #screen-menu .diff-note { text-align: left; }
   }
 
   @media (max-width: 640px) {
@@ -614,11 +659,17 @@
         Gallop across a candy-colored sky. Leap over crystal spires, duck beneath gloom wisps,
         and chase stars until the rainbow takes over.
       </p>
+      <div id="difficulty" class="difficulty" role="group" aria-label="Difficulty">
+        <button class="diff-btn" type="button" data-difficulty="easy" aria-pressed="false">Easy</button>
+        <button class="diff-btn" type="button" data-difficulty="medium" aria-pressed="true">Medium</button>
+        <button class="diff-btn" type="button" data-difficulty="hard" aria-pressed="false">Hard</button>
+      </div>
+      <p class="diff-note">3 hearts · the dream as intended</p>
       <button id="playBtn" class="btn">Start Running</button>
       <div class="controls">
         <div><kbd>Space</kbd> / <kbd>↑</kbd> jump — press again mid-air to double jump</div>
         <div><kbd>↓</kbd> duck — press in mid-air to dive fast</div>
-        <div><kbd>P</kbd> pause &nbsp;·&nbsp; <kbd>M</kbd> mute</div>
+        <div><kbd>P</kbd> pause &nbsp;·&nbsp; <kbd>M</kbd> mute &nbsp;·&nbsp; <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> difficulty</div>
       </div>
       <div class="rotate-hint">↻ Turn your phone sideways for the widescreen view</div>
     </div>
@@ -634,6 +685,12 @@
         <div class="stat-block"><span class="stat-big" id="finalBest">0</span><span class="stat-cap">BEST</span></div>
         <div class="stat-block"><span class="stat-big" id="finalStars">0</span><span class="stat-cap">STARS</span></div>
       </div>
+      <div class="difficulty" role="group" aria-label="Difficulty for the next run">
+        <button class="diff-btn" type="button" data-difficulty="easy" aria-pressed="false">Easy</button>
+        <button class="diff-btn" type="button" data-difficulty="medium" aria-pressed="true">Medium</button>
+        <button class="diff-btn" type="button" data-difficulty="hard" aria-pressed="false">Hard</button>
+      </div>
+      <p class="diff-note">3 hearts · the dream as intended</p>
       <button id="againBtn" class="btn">Run Again</button>
       <div class="hint">or press <kbd>Space</kbd></div>
     </div>
@@ -696,6 +753,8 @@
     menu: $('screen-menu'), over: $('screen-over'), paused: $('screen-paused'),
     finalScore: $('finalScore'), finalBest: $('finalBest'), finalStars: $('finalStars'),
     loading: $('loading'), muteBtn: $('muteBtn'), pauseBtn: $('pauseBtn'),
+    diffButtons: Array.from(document.querySelectorAll('.diff-btn')),
+    diffNotes: Array.from(document.querySelectorAll('.diff-note')),
   };
 
   /* =========================================================
@@ -1899,7 +1958,74 @@
   const GRAVITY = 40;
   const JUMP_V = 15.2;
   const DOUBLE_JUMP_V = 13.2;
-  const RUSH_DURATION = 7;
+
+  /* Difficulty presets — "medium" is the original tuning.
+     easy/hard only shift pacing, lives, gaps and scoring; jump physics stay the same. */
+  const DIFFICULTIES = {
+    easy: {
+      label: 'Easy',
+      note: '4 hearts · slower start · roomy gaps',
+      hearts: 4,
+      startSpeed: 12,
+      speedRamp: 8,
+      rampRate: 0.005,
+      speedCap: 0.9,
+      gapMin: 1.3, gapMax: 2.15, gapBase: 9,
+      firstObstacle: 74,
+      starGapMin: 22, starGapMax: 42,
+      firstPower: 170,
+      powerGapMin: 180, powerGapMax: 300,
+      invuln: 2.2,
+      rushDuration: 8,
+      rushGain: 5.5,
+      scoreMul: 0.85,
+    },
+    medium: {
+      label: 'Medium',
+      note: '3 hearts · the dream as intended',
+      hearts: 3,
+      startSpeed: 15,
+      speedRamp: 11,
+      rampRate: 0.006,
+      speedCap: 1,
+      gapMin: 0.95, gapMax: 1.7, gapBase: 6,
+      firstObstacle: 58,
+      starGapMin: 28, starGapMax: 60,
+      firstPower: 220,
+      powerGapMin: 230, powerGapMax: 400,
+      invuln: 1.1,
+      rushDuration: 7,
+      rushGain: 4.5,
+      scoreMul: 1,
+    },
+    hard: {
+      label: 'Hard',
+      note: '2 hearts · fast start · tighter gaps',
+      hearts: 2,
+      startSpeed: 19,
+      speedRamp: 15,
+      rampRate: 0.0075,
+      speedCap: 1.15,
+      gapMin: 0.68, gapMax: 1.25, gapBase: 4,
+      firstObstacle: 42,
+      starGapMin: 34, starGapMax: 68,
+      firstPower: 280,
+      powerGapMin: 290, powerGapMax: 470,
+      invuln: 0.8,
+      rushDuration: 6,
+      rushGain: 3.4,
+      scoreMul: 1.25,
+    },
+  };
+  const DIFFICULTY_ORDER = ['easy', 'medium', 'hard'];
+
+  let difficulty = 'medium';
+  try {
+    const savedDifficulty = localStorage.getItem('unicornDashDifficulty');
+    if (savedDifficulty && DIFFICULTIES[savedDifficulty]) difficulty = savedDifficulty;
+  } catch (e) { /* storage blocked — no problem */ }
+
+  const diff = () => DIFFICULTIES[difficulty];
 
   const game = {
     state: 'menu',
@@ -1911,6 +2037,7 @@
     comboTimer: 0,
     rush: 0,
     rushTime: 0,
+    rushDuration: 7,
     magnet: 0,
     invuln: 0,
     hearts: 3,
@@ -1952,10 +2079,14 @@
   /* =========================================================
      13 · HUD helpers
   ========================================================= */
-  dom.hearts.innerHTML = Array.from({ length: 3 }, () =>
-    '<svg class="heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.7-9.6-9.2C.9 8.4 2.6 4.8 6 4.2c2.2-.4 4.3.8 6 3 1.7-2.2 3.8-3.4 6-3 3.4.6 5.1 4.2 3.6 7.6C19.5 16.3 12 21 12 21z"/></svg>'
-  ).join('');
-  const heartEls = Array.from(dom.hearts.children);
+  const HEART_SVG = '<svg class="heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.7-9.6-9.2C.9 8.4 2.6 4.8 6 4.2c2.2-.4 4.3.8 6 3 1.7-2.2 3.8-3.4 6-3 3.4.6 5.1 4.2 3.6 7.6C19.5 16.3 12 21 12 21z"/></svg>';
+  let heartEls = [];
+
+  function buildHearts(count) {
+    dom.hearts.innerHTML = HEART_SVG.repeat(count);
+    heartEls = Array.from(dom.hearts.children);
+    updateHearts();
+  }
 
   function updateHearts(pulse = false) {
     heartEls.forEach((el, i) => {
@@ -1967,6 +2098,24 @@
         el.classList.add('pulse');
       }
     });
+  }
+
+  function applyDifficultyUI(announce = false) {
+    dom.diffButtons.forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(btn.dataset.difficulty === difficulty));
+    });
+    dom.diffNotes.forEach((note) => { note.textContent = diff().note; });
+    if (announce) {
+      sound.ensure();
+      sound.coin(1.15);
+    }
+  }
+
+  function setDifficulty(key) {
+    if (!DIFFICULTIES[key] || key === difficulty) return;
+    difficulty = key;
+    try { localStorage.setItem('unicornDashDifficulty', key); } catch (e) { /* ignore */ }
+    applyDifficultyUI(true);
   }
 
   function updateHud() {
@@ -1982,7 +2131,7 @@
       lastBestText = bestStr;
     }
     const width = game.rushTime > 0
-      ? Math.round((game.rushTime / RUSH_DURATION) * 100)
+      ? Math.round((game.rushTime / game.rushDuration) * 100)
       : Math.round(game.rush);
     if (width !== lastRushWidth) {
       dom.rushFill.style.width = width + '%';
@@ -2042,7 +2191,8 @@
   }
 
   function resetGame() {
-    game.speed = 15;
+    const d = diff();
+    game.speed = d.startSpeed;
     game.distance = 0;
     game.score = 0;
     game.stars = 0;
@@ -2050,14 +2200,15 @@
     game.comboTimer = 0;
     game.rush = 0;
     game.rushTime = 0;
+    game.rushDuration = d.rushDuration;
     game.magnet = 0;
-    game.invuln = 1.1;
-    game.hearts = 3;
+    game.invuln = d.invuln;
+    game.hearts = d.hearts;
     game.milestone = 0;
     game.shake = 0;
-    game.nextObstacleAt = 58;
+    game.nextObstacleAt = d.firstObstacle;
     game.nextStarAt = 30;
-    game.nextPowerAt = 220;
+    game.nextPowerAt = d.firstPower;
     game.overReady = false;
     game.deathTime = 0;
     game.beatBest = false;
@@ -2078,7 +2229,7 @@
     document.body.classList.remove('rushing');
     dom.rushBadge.classList.remove('show');
     dom.fx.classList.remove('rush');
-    updateHearts();
+    buildHearts(d.hearts);
     updateHud();
   }
 
@@ -2169,10 +2320,10 @@
 
   function activateRush() {
     if (game.rushTime > 0) {
-      game.rushTime = RUSH_DURATION;
+      game.rushTime = game.rushDuration;
       return;
     }
-    game.rushTime = RUSH_DURATION;
+    game.rushTime = game.rushDuration;
     game.rush = 100;
     sound.rush();
     document.body.classList.add('rushing');
@@ -2294,12 +2445,14 @@
      17 · gameplay update
   ========================================================= */
   function updatePlaying(dt) {
-    const baseTarget = Math.min(15 + Math.min(11, game.distance * 0.006), maxSpeed);
+    const d = diff();
+    const speedCap = maxSpeed * d.speedCap;
+    const baseTarget = Math.min(d.startSpeed + Math.min(d.speedRamp, game.distance * d.rampRate), speedCap);
     game.speed = lerp(game.speed, baseTarget, 1 - Math.pow(0.35, dt));
     worldSpeed = game.speed * (game.rushTime > 0 ? 1.38 : 1);
 
     game.distance += worldSpeed * dt;
-    game.score += worldSpeed * dt * 1.5;
+    game.score += worldSpeed * dt * 1.5 * d.scoreMul;
 
     game.invuln = Math.max(0, game.invuln - dt);
     game.magnet = Math.max(0, game.magnet - dt);
@@ -2365,21 +2518,21 @@
     // spawning
     if (game.distance > game.nextObstacleAt) {
       spawnPattern();
-      const gap = worldSpeed * rand(0.95, 1.7) + 6;
+      const gap = worldSpeed * rand(d.gapMin, d.gapMax) + d.gapBase;
       game.nextObstacleAt = game.distance + gap;
     }
     if (game.distance > game.nextStarAt) {
       spawnStarArc(SPAWN_X + rand(0, 24), randInt(3, 6));
-      game.nextStarAt = game.distance + rand(28, 60);
+      game.nextStarAt = game.distance + rand(d.starGapMin, d.starGapMax);
     }
     if (game.distance > game.nextPowerAt) {
       const roll = Math.random();
       let type;
-      if (game.hearts < 3 && roll < 0.55) type = 'heart';
+      if (game.hearts < d.hearts && roll < 0.55) type = 'heart';
       else if (roll < 0.82) type = 'magnet';
       else type = 'orb';
       spawnPickup(type, SPAWN_X + rand(0, 12), type === 'heart' ? 2.0 : 1.9, rand(-0.4, 0.4));
-      game.nextPowerAt = game.distance + rand(230, 400);
+      game.nextPowerAt = game.distance + rand(d.powerGapMin, d.powerGapMax);
     }
 
     // milestone
@@ -2465,7 +2618,7 @@
       game.comboTimer = 2.5;
       const pts = 10 * game.combo;
       game.score += pts;
-      game.rush = Math.min(100, game.rush + 4.5);
+      game.rush = Math.min(100, game.rush + diff().rushGain);
       sound.coin(1 + Math.min(6, game.combo) * 0.055);
       emit(pos.x, pos.y, pos.z, 14, {
         color: 0xffd166, color2: 0xffffff, speed: 3.4, size: 0.7, life: 0.6, up: 0.6,
@@ -2473,7 +2626,7 @@
       popupAtWorld('+' + pts, pos);
       if (game.combo > 1) showCombo();
     } else if (p.type === 'heart') {
-      game.hearts = Math.min(3, game.hearts + 1);
+      game.hearts = Math.min(diff().hearts, game.hearts + 1);
       updateHearts(true);
       game.score += 40;
       sound.heart();
@@ -2707,6 +2860,9 @@
       if (!e.repeat) togglePause();
     } else if (k === 'KeyM') {
       if (!e.repeat) toggleMute();
+    } else if (game.state === 'menu' && (k === 'Digit1' || k === 'Digit2' || k === 'Digit3')) {
+      e.preventDefault();
+      if (!e.repeat) setDifficulty(DIFFICULTY_ORDER[Number(k.slice(-1)) - 1]);
     }
   });
 
@@ -2743,6 +2899,13 @@
   $('btnDuck').addEventListener('pointerleave', () => setDuck(false));
 
   $('playBtn').addEventListener('click', (e) => { e.currentTarget.blur(); sound.ensure(); startGame(); });
+  dom.diffButtons.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      btn.blur();
+      setDifficulty(btn.dataset.difficulty);
+    });
+  });
   $('againBtn').addEventListener('click', (e) => { e.currentTarget.blur(); sound.ensure(); startGame(); });
   $('resumeBtn').addEventListener('click', (e) => { e.currentTarget.blur(); sound.ensure(); resumeGame(); });
   $('pauseBtn').addEventListener('click', (e) => { e.currentTarget.blur(); togglePause(); });
@@ -2823,7 +2986,9 @@
   /* =========================================================
      22 · boot
   ========================================================= */
-  updateHearts();
+  game.hearts = diff().hearts;
+  buildHearts(game.hearts);
+  applyDifficultyUI();
   updateHud();
   dom.best.textContent = pad5(game.best);
   lastBestText = pad5(game.best);
